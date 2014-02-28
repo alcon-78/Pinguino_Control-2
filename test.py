@@ -1,4 +1,5 @@
 import sys
+import time
 
 from pynguino.pusb import PynguinoUSB
 from PySide import QtCore, QtGui
@@ -40,15 +41,37 @@ QtGui.QMessageBox.No)
 
     def automatic(self):
         self.ui.dial_ON.setDisabled(False)
+        
         self.ui.dial_OFF.setDisabled(False)
+        
         self.ui.pushButton.setDisabled(True)
         self.ui.pushButton_2.setDisabled(True)
         pinguino.pinMode(int(self.ui.spinPuerto.value()), "OUTPUT")
+        if self.ui.esc_10_ON.isChecked():
+            tiempo_ON = self.ui.dial_ON.value() * 10
+        elif self.ui.esc_100_ON.isChecked():
+            tiempo_ON = self.ui.dial_ON.value() * 100
+        else:
+            tiempo_ON = self.ui.dial_ON.value()
+        if self.ui.esc_10_OFF.isChecked():
+            tiempo_OFF = self.ui.dial_OFF.value() * 10
+        elif self.ui.esc_100_OFF.isChecked():
+            tiempo_OFF = self.ui.dial_OFF.value() * 100
+        else:
+            tiempo_OFF = self.ui.dial_OFF.value()
+        # self.ui.lcd_ON.display(tiempo_ON)
+        # self.ui.lcd_OFF.display(tiempo_OFF)
+        #...........#        
+        self.connect(self.ui.dial_ON, QtCore.SIGNAL('valueChanged(int)'), self.ui.lcd_ON,
+            QtCore.SLOT('display(int)'))
+        self.connect(self.ui.dial_OFF, QtCore.SIGNAL('valueChanged(int)'), self.ui.lcd_OFF,
+            QtCore.SLOT('display(int)'))
+        #...........#        
         for i in range(20):
             pinguino.digitalWrite(self.ui.spinPuerto.value(), "HIGH")
-            pinguino.delay(self.ui.dial_ON.value())
+            pinguino.delay(tiempo_ON)
             pinguino.digitalWrite(self.ui.spinPuerto.value(), "LOW")
-            pinguino.delay(self.ui.dial_OFF.value())
+            pinguino.delay(tiempo_OFF)
 
     def manual(self):
         self.ui.pushButton.setDisabled(False)
@@ -61,8 +84,15 @@ QtGui.QMessageBox.No)
 
     def puertoA(self):
         pinguino.pinMode(self.ui.spinPuerto_A.value(), "INPUT")
+        #i = 1
+        #while i == 1:
         potenciometro = pinguino.analogRead(self.ui.spinPuerto_A.value())
         self.ui.lcdAnalog.display(potenciometro)
+            #if self.ui.radioButton_ON.isChecked():
+                #i = 1
+            #else:
+                #i = 0
+        
 
     def on(self):
         pinguino.digitalWrite(self.ui.spinPuerto.value(), 1)
